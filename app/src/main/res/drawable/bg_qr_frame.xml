@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer Cyan Glow Blur Simulation -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/neon_cyan_glow" />
+            <corners android:radius="28dp" />
+        </shape>
+    </item>
+    <!-- Inner Frame with 2dp Neon Cyan Stroke and Dark Surface -->
+    <item
+        android:bottom="3dp"
+        android:left="3dp"
+        android:right="3dp"
+        android:top="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/bg_surface_dark" />
+            <stroke
+                android:width="2dp"
+                android:color="@color/neon_cyan" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</layer-list>

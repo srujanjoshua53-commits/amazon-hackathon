@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Flame / Bridge abstract glowing icon -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M24,4C20.5,12 14,16.5 14,24C14,29.5 18.5,34 24,34C29.5,34 34,29.5 34,24C34,16.5 27.5,12 24,4ZM24,29C21.2,29 19,26.8 19,24C19,20.5 22,17.5 24,14C26,17.5 29,20.5 29,24C29,26.8 26.8,29 24,29Z" />
+    <path
+        android:fillColor="#818CF8"
+        android:pathData="M8,38C13,36 18,36 24,36C30,36 35,36 40,38C41.1,38.5 41.5,39.8 41,40.9C40.5,42 39.2,42.5 38.1,42C33.6,40.2 28.8,40 24,40C19.2,40 14.4,40.2 9.9,42C8.8,42.5 7.5,42 7,40.9C6.5,39.8 6.9,38.5 8,38Z" />
+</vector>

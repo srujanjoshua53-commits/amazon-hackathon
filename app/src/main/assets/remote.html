@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090D16" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>FireBridge AI Ultra • Mobile Controller</title>
+  
+  <style>
+    /* =========================================================
+       RESET & MODERN CSS VARIABLES
+       ========================================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    :root {
+      --bg-dark: #090D16;
+      --bg-surface: rgba(22, 31, 51, 0.72);
+      --bg-surface-elevated: rgba(30, 41, 59, 0.85);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-glass-glow: rgba(56, 189, 248, 0.35);
+
+      --neon-cyan: #38BDF8;
+      --neon-cyan-glow: rgba(56, 189, 248, 0.4);
+      --neon-indigo: #818CF8;
+      --neon-indigo-glow: rgba(129, 140, 248, 0.35);
+      --neon-emerald: #10B981;
+      --neon-rose: #F43F5E;
+      --neon-amber: #F59E0B;
+
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --radius-pill: 9999px;
+
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.12), transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(129, 140, 248, 0.12), transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.95), var(--bg-dark) 100%);
+      color: var(--text-primary);
+      font-family: var(--font-stack);
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    /* Glassmorphism Container Utility */
+    .glass-card {
+      background: var(--bg-surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+    }
+
+    /* =========================================================
+       TOP STATUS BAR
+       ========================================================= */
+    .top-header {
+      padding: 14px 20px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-glass);
+      background: rgba(9, 13, 22, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-indigo));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 14px var(--neon-cyan-glow);
+    }
+
+    .brand-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: #020617;
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .brand-badge {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 2px 6px;
+      border-radius: var(--radius-pill);
+    }
+
+    .conn-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--neon-amber);
+      box-shadow: 0 0 8px var(--neon-amber);
+      transition: all 0.3s ease;
+    }
+
+    .status-dot.connected {
+      background: var(--neon-emerald);
+      box-shadow: 0 0 10px var(--neon-emerald);
+      animation: pulseGreen 2s infinite ease-in-out;
+    }
+
+    .status-dot.error {
+      background: var(--neon-rose);
+      box-shadow: 0 0 8px var(--neon-rose);
+    }
+
+    @keyframes pulseGreen {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.25); opacity: 0.7; }
+    }
+
+    /* =========================================================
+       NAVIGATION TABS (D-Pad | Touchpad | AI Hub)
+       ========================================================= */
+    .tab-nav-wrapper {
+      padding: 14px 20px 6px;
+    }
+
+    .tab-nav {
+      display: flex;
+      background: rgba(22, 31, 51, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-pill);
+      padding: 4px;
+      position: relative;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .tab-btn svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(129, 140, 248, 0.25));
+      color: var(--neon-cyan);
+      box-shadow: 0 2px 12px rgba(56, 189, 248, 0.25);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    /* =========================================================
+       MAIN CONTENT CONTAINER & TAB VIEWS
+       ========================================================= */
+    .main-content {
+      flex: 1;
+      padding: 12px 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .tab-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      width: 100%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-view.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* =========================================================
+       TAB 1: TACTILE D-PAD
+       ========================================================= */
+    .dpad-container {
+      position: relative;
+      width: 270px;
+      height: 270px;
+      margin: 15px auto 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dpad-outer-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(30, 41, 59, 0.7) 40%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1px solid var(--border-glass);
+      box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.05);
+    }
+
+    .dpad-btn {
+      position: absolute;
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+      transition: all 0.15s ease;
+    }
+
+    .dpad-btn:active {
+      transform: scale(0.92);
+      color: var(--neon-cyan);
+    }
+
+    .dpad-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: currentColor;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    }
+
+    .dpad-btn.up {
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 65px;
+    }
+    .dpad-btn.up:active {
+      transform: translateX(-50%) translateY(-2px) scale(0.94);
+    }
+
+    .dpad-btn.down {
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 65px;
+    }
+    .dpad-btn.down:active {
+      transform: translateX(-50%) translateY(2px) scale(0.94);
+    }
+
+    .dpad-btn.left {
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 65px;
+      height: 80px;
+    }
+    .dpad-btn.left:active {
+      transform: translateY(-50%) translateX(-2px) scale(0.94);
+    }
+
+    .dpad-btn.right {
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 65px;
+      height: 80px;
+    }
+    .dpad-btn.right:active {
+      transform: translateY(-50%) translateX(2px) scale(0.94);
+    }
+
+    /* Central Select / OK Button */
+    .dpad-select-btn {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1E293B, #0F172A);
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 16px var(--neon-cyan-glow), inset 0 2px 6px rgba(255, 255, 255, 0.15);
+      color: var(--neon-cyan);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.12s ease;
+    }
+
+    .dpad-select-btn:active {
+      transform: scale(0.9);
+      background: var(--neon-cyan);
+      color: #020617;
+      box-shadow: 0 0 24px var(--neon-cyan);
+    }
+
+    /* Secondary Nav Row (Back, Home, Menu) */
+    .secondary-nav-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .circle-action-btn {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .circle-action-btn:active {
+      transform: scale(0.92);
+      color: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 16px var(--neon-cyan-glow);
+    }
+
+    .circle-action-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    /* =========================================================
+       TAB 2: SWIPE TOUCHPAD
+       ========================================================= */
+    .touchpad-wrapper {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .touchpad-surface {
+      width: 100%;
+      height: 310px;
+      background: radial-gradient(circle at center, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1.5px solid var(--border-glass-glow);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6), 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .touchpad-grid {
+      position: absolute;
+      inset: 0;
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      pointer-events: none;
+    }
+
+    .touchpad-indicator-center {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--neon-cyan);
+      opacity: 0.3;
+      box-shadow: 0 0 12px var(--neon-cyan);
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+
+    .touchpad-finger-cursor {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--neon-cyan-glow) 0%, transparent 70%);
+      border: 2px solid var(--neon-cyan);
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      transition: transform 0.08s ease, opacity 0.15s ease;
+      box-shadow: 0 0 20px var(--neon-cyan);
+      z-index: 10;
+    }
+
+    .touchpad-finger-cursor.active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .swipe-flash-badge {
+      position: absolute;
+      top: 16px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 5px 14px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 0 14px var(--neon-cyan-glow);
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .swipe-flash-badge.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .touchpad-hint-bar {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* =========================================================
+       TAB 3: AI ASSISTANT HUB
+       ========================================================= */
+    .ai-hub-wrapper {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .ai-voice-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 4px;
+      width: 100%;
+    }
+
+    /* Pulsing Cyan Mic Button */
+    .mic-button-wrapper {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 0 12px;
+    }
+
+    .mic-radar-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--neon-cyan);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mic-radar-ring.animating {
+      animation: radarWave 1.8s infinite ease-out;
+    }
+
+    @keyframes radarWave {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .mic-btn {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1E293B, #0F172A);
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 20px var(--neon-cyan-glow), inset 0 2px 6px rgba(255, 255, 255, 0.15);
+      color: var(--neon-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      z-index: 5;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mic-btn.listening {
+      background: var(--neon-cyan);
+      color: #020617;
+      box-shadow: 0 0 35px var(--neon-cyan);
+      animation: pulseMic 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulseMic {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .mic-btn svg {
+      width: 36px;
+      height: 36px;
+      fill: currentColor;
+    }
+
+    .mic-status-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    /* Live Speech Transcription Box */
+    .speech-preview-box {
+      width: 100%;
+      min-height: 48px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .speech-text {
+      flex: 1;
+      font-style: italic;
+      color: var(--text-secondary);
+      max-height: 54px;
+      overflow-y: auto;
+    }
+
+    .speech-text.active {
+      font-style: normal;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .btn-send-speech {
+      background: var(--neon-cyan);
+      color: #020617;
+      border: none;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-send-speech.show {
+      display: flex;
+    }
+
+    /* AI Preset Quick-Action Pills */
+    .ai-preset-header {
+      width: 100%;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .ai-presets-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 14px;
+    }
+
+    .preset-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .preset-pill:active {
+      transform: scale(0.96);
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      box-shadow: 0 0 14px var(--neon-cyan-glow);
+    }
+
+    .preset-pill-icon {
+      font-size: 15px;
+    }
+
+    /* Text Input Fallback */
+    .manual-input-row {
+      width: 100%;
+      display: flex;
+      gap: 8px;
+    }
+
+    .manual-input {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-pill);
+      padding: 10px 16px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .manual-input:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px var(--neon-cyan-glow);
+    }
+
+    .manual-send-btn {
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-indigo));
+      border: none;
+      color: #020617;
+      border-radius: var(--radius-pill);
+      padding: 0 18px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .manual-send-btn:active {
+      transform: scale(0.94);
+      filter: brightness(1.2);
+    }
+
+    /* Live Mobile Response Viewer Card */
+    .ai-mobile-card {
+      width: 100%;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--neon-cyan);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-top: 14px;
+      display: none;
+      animation: slideUp 0.3s ease;
+      box-shadow: 0 8px 24px -6px rgba(56, 189, 248, 0.3);
+    }
+
+    .ai-mobile-card.show {
+      display: block;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ai-mobile-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--neon-cyan);
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ai-mobile-body {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-primary);
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    /* =========================================================
+       MEDIA & QUICK ACTION HARDWARE BAR (Docked Bottom)
+       ========================================================= */
+    .bottom-dock {
+      padding: 10px 16px 18px;
+      background: rgba(9, 13, 22, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .media-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+    }
+
+    .media-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .media-btn:active {
+      transform: scale(0.9);
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+    }
+
+    .media-btn.play-pause {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(129, 140, 248, 0.3));
+      border: 1.5px solid var(--neon-cyan);
+      box-shadow: 0 0 14px var(--neon-cyan-glow);
+    }
+
+    .media-btn.play-pause:active {
+      background: var(--neon-cyan);
+      color: #020617;
+    }
+
+    .media-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    .volume-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .vol-btn {
+      flex: 1;
+      padding: 10px 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-pill);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.12s ease;
+    }
+
+    .vol-btn:active {
+      transform: scale(0.95);
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+    }
+
+    .vol-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* App Launcher Quick Pills */
+    .app-launcher-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .app-launcher-row::-webkit-scrollbar { display: none; }
+
+    .app-chip {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-glass);
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .app-chip:active {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      background: rgba(56, 189, 248, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================
+       TOP STATUS BAR
+       ========================================================= -->
+  <header class="top-header">
+    <div class="brand-group">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C8 9 4 12 4 16c0 4.4 3.6 8 8 8s8-3.6 8-8c0-4-4-7-8-14zm0 18c-2.2 0-4-1.8-4-4 0-2.4 2-4.5 4-7 2 2.5 4 4.6 4 7 0 2.2-1.8 4-4 4z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">
+          FIREBRIDGE <span class="brand-badge">ULTRA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="conn-status-pill" id="connPill">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Connecting…</span>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       NAVIGATION TABS
+       ========================================================= -->
+  <div class="tab-nav-wrapper">
+    <nav class="tab-nav">
+      <button class="tab-btn active" id="tabDpadBtn" onclick="switchTab('dpad')">
+        <svg viewBox="0 0 24 24"><path d="M13 2v6h6V2h-6zm-8 8v6h6v-6H5zm14 0v6h6v-6h-6zM5 18v6h6v-6H5zm8 0v6h6v-6h-6z"/></svg>
+        D-Pad
+      </button>
+      <button class="tab-btn" id="tabTouchBtn" onclick="switchTab('touchpad')">
+        <svg viewBox="0 0 24 24"><path d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74c1.21-.81 2-2.18 2-3.74a4.5 4.5 0 0 0-9 0c0 1.56.79 2.93 2 3.74zm9.84 4.63l-4.54-2.26c-.17-.09-.35-.14-.54-.14H13v-6a1.5 1.5 0 0 0-3 0v10.74l-3.43-.72c-.08-.02-.17-.03-.25-.03-.34 0-.65.14-.88.37l-.87.88 5.34 5.34c.36.36.86.58 1.41.58h7.24c.97 0 1.79-.69 1.96-1.64l.82-4.69c.14-.8-.32-1.58-1-1.87z"/></svg>
+        Touchpad
+      </button>
+      <button class="tab-btn" id="tabAiBtn" onclick="switchTab('ai')">
+        <svg viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+        AI Hub
+      </button>
+    </nav>
+  </div>
+
+  <!-- =========================================================
+       MAIN BODY CONTENT
+       ========================================================= -->
+  <main class="main-content">
+
+    <!-- -------------------------------------------------------
+         TAB 1: TACTILE D-PAD
+         ------------------------------------------------------- -->
+    <div class="tab-view active" id="viewDpad">
+      <div class="dpad-container">
+        <div class="dpad-outer-ring"></div>
+
+        <!-- UP -->
+        <button class="dpad-btn up" onclick="sendKey('UP')">
+          <svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg>
+        </button>
+
+        <!-- DOWN -->
+        <button class="dpad-btn down" onclick="sendKey('DOWN')">
+          <svg viewBox="0 0 24 24"><path d="M12 20l8-8h-6V4h-4v8H4z"/></svg>
+        </button>
+
+        <!-- LEFT -->
+        <button class="dpad-btn left" onclick="sendKey('LEFT')">
+          <svg viewBox="0 0 24 24"><path d="M4 12l8-8v6h8v4h-8v6z"/></svg>
+        </button>
+
+        <!-- RIGHT -->
+        <button class="dpad-btn right" onclick="sendKey('RIGHT')">
+          <svg viewBox="0 0 24 24"><path d="M20 12l-8-8v6H4v4h8v6z"/></svg>
+        </button>
+
+        <!-- CENTER SELECT -->
+        <button class="dpad-select-btn" onclick="sendKey('SELECT')">
+          OK
+        </button>
+      </div>
+
+      <!-- Secondary Nav: Back, Home, Menu -->
+      <div class="secondary-nav-row">
+        <button class="circle-action-btn" title="Back" onclick="sendKey('BACK')">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        <button class="circle-action-btn" title="Home" onclick="sendKey('HOME')">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </button>
+        <button class="circle-action-btn" title="Menu" onclick="sendKey('MENU')">
+          <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- -------------------------------------------------------
+         TAB 2: SWIPE TOUCHPAD
+         ------------------------------------------------------- -->
+    <div class="tab-view" id="viewTouchpad">
+      <div class="touchpad-wrapper">
+        <div class="touchpad-surface" id="touchSurface">
+          <div class="touchpad-grid"></div>
+          <div class="touchpad-indicator-center"></div>
+          <div class="touchpad-finger-cursor" id="touchCursor"></div>
+          <div class="swipe-flash-badge" id="swipeBadge">SWIPE DETECTED</div>
+        </div>
+
+        <div class="touchpad-hint-bar">
+          <span>👆 Drag to Swipe</span>
+          <span>•</span>
+          <span>⚡ Tap for Select</span>
+        </div>
+
+        <!-- Secondary Nav under Touchpad -->
+        <div class="secondary-nav-row" style="margin-top: 18px;">
+          <button class="circle-action-btn" title="Back" onclick="sendKey('BACK')">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+          <button class="circle-action-btn" title="Home" onclick="sendKey('HOME')">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </button>
+          <button class="circle-action-btn" title="Menu" onclick="sendKey('MENU')">
+            <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- -------------------------------------------------------
+         TAB 3: AI ASSISTANT HUB
+         ------------------------------------------------------- -->
+    <div class="tab-view" id="viewAi">
+      <div class="ai-hub-wrapper">
+
+        <!-- Voice Input Section -->
+        <div class="ai-voice-section">
+          <div class="mic-button-wrapper">
+            <div class="mic-radar-ring" id="micRadar"></div>
+            <button class="mic-btn" id="micBtn" onclick="toggleVoiceRecognition()" title="Tap to Speak">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="mic-status-label" id="micLabel">Tap Mic &amp; Dictate Scene Query</div>
+
+          <!-- Speech Preview Box -->
+          <div class="speech-preview-box" id="speechBox">
+            <div class="speech-text" id="speechPreviewText">"Listening for voice query…"</div>
+            <button class="btn-send-speech" id="btnSendSpeech" onclick="sendTranscribedPrompt()">
+              Ask Bedrock
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Preset Pills -->
+        <div class="ai-preset-header">⚡ Instant Scene Presets</div>
+        <div class="ai-presets-grid">
+          <button class="preset-pill" onclick="sendAiPreset('Who is this actor and what notable movies have they done?')">
+            <span class="preset-pill-icon">🎭</span>
+            <span>Who is this actor?</span>
+          </button>
+          <button class="preset-pill" onclick="sendAiPreset('Summarize the last 10 minutes of the scene plot')">
+            <span class="preset-pill-icon">⏱️</span>
+            <span>Summarize last 10m</span>
+          </button>
+          <button class="preset-pill" onclick="sendAiPreset('Explain the current plot twist and hidden clues')">
+            <span class="preset-pill-icon">🌀</span>
+            <span>Explain plot twist</span>
+          </button>
+          <button class="preset-pill" onclick="sendAiPreset('Provide a kid-friendly rating check and age guidance')">
+            <span class="preset-pill-icon">🛡️</span>
+            <span>Kid-Friendly check</span>
+          </button>
+          <button class="preset-pill" onclick="sendAiPreset('What soundtrack or score is playing in this background?')">
+            <span class="preset-pill-icon">🎵</span>
+            <span>What song is playing?</span>
+          </button>
+          <button class="preset-pill" onclick="sendAiPreset('Reveal hidden Easter eggs and cinematic trivia')">
+            <span class="preset-pill-icon">🔍</span>
+            <span>Trivia &amp; Easter eggs</span>
+          </button>
+        </div>
+
+        <!-- Manual Typing Bar -->
+        <div class="manual-input-row">
+          <input type="text" class="manual-input" id="manualInput" placeholder="Ask custom question about this movie…" onkeydown="if(event.key==='Enter') sendManualPrompt()" />
+          <button class="manual-send-btn" onclick="sendManualPrompt()">Ask</button>
+        </div>
+
+        <!-- Mobile Response Viewer -->
+        <div class="ai-mobile-card" id="aiMobileCard">
+          <div class="ai-mobile-title">
+            <span id="aiMobilePromptTitle">AI Response</span>
+            <span style="font-size: 10px; color: var(--text-muted); cursor: pointer;" onclick="dismissMobileAi()">✕ DISMISS</span>
+          </div>
+          <div class="ai-mobile-body" id="aiMobileContent"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- =========================================================
+       MEDIA & VOLUME HARDWARE DOCK (BOTTOM)
+       ========================================================= -->
+  <footer class="bottom-dock">
+    <!-- Quick App Launcher Chips -->
+    <div class="app-launcher-row">
+      <div class="app-chip" onclick="launchApp('com.amazon.firetv.youtube')">▶ YouTube</div>
+      <div class="app-chip" onclick="launchApp('com.netflix.ninja')">🎬 Netflix</div>
+      <div class="app-chip" onclick="launchApp('com.amazon.amazonvideo.livingroom')">🍿 Prime Video</div>
+      <div class="app-chip" onclick="launchApp('com.amazon.tv.settings')">⚙️ Settings</div>
+    </div>
+
+    <!-- Media Transport Row -->
+    <div class="media-controls-row">
+      <button class="media-btn" title="Rewind" onclick="sendKey('REWIND')">
+        <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+      </button>
+
+      <button class="media-btn play-pause" id="btnPlayPause" title="Play/Pause" onclick="sendKey('PLAY_PAUSE')">
+        <svg viewBox="0 0 24 24" id="iconPlayPause"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+
+      <button class="media-btn" title="Fast Forward" onclick="sendKey('FAST_FORWARD')">
+        <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+      </button>
+    </div>
+
+    <!-- Volume & Mute Row -->
+    <div class="volume-row">
+      <button class="vol-btn" onclick="sendKey('VOL_DOWN')">
+        <svg viewBox="0 0 24 24"><path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/></svg>
+        VOL -
+      </button>
+      <button class="vol-btn" onclick="sendKey('MUTE')">
+        <svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+        MUTE
+      </button>
+      <button class="vol-btn" onclick="sendKey('VOL_UP')">
+        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        VOL +
+      </button>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       JAVASCRIPT LOGIC & WEBSOCKET ENGINE
+       ========================================================= -->
+  <script>
+    // --- 1. TACTILE HAPTIC FEEDBACK ---
+    function triggerHaptic(duration = 12) {
+      if (window.navigator && window.navigator.vibrate) {
+        try {
+          window.navigator.vibrate(duration);
+        } catch (e) {}
+      }
+    }
+
+    // --- 2. WEBSOCKET CONNECTION ENGINE ---
+    let ws = null;
+    let reconnectAttempts = 0;
+    const maxReconnectDelay = 8000;
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const connPill = document.getElementById("connPill");
+
+    function getWsUrl() {
+      const host = window.location.hostname || "127.0.0.1";
+      return `ws://${host}:8080`;
+    }
+
+    function initWebSocket() {
+      const url = getWsUrl();
+      statusText.textContent = "Connecting…";
+      statusDot.className = "status-dot";
+
+      try {
+        ws = new WebSocket(url);
+      } catch (e) {
+        scheduleReconnect();
+        return;
+      }
+
+      ws.onopen = () => {
+        reconnectAttempts = 0;
+        statusDot.className = "status-dot connected";
+        statusText.textContent = "TV Connected";
+        triggerHaptic(25);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          handleServerMessage(payload);
+        } catch (e) {
+          console.error("Message parse error:", e);
+        }
+      };
+
+      ws.onclose = () => {
+        statusDot.className = "status-dot";
+        statusText.textContent = "Disconnected";
+        scheduleReconnect();
+      };
+
+      ws.onerror = () => {
+        statusDot.className = "status-dot error";
+        statusText.textContent = "Error";
+      };
+    }
+
+    function scheduleReconnect() {
+      reconnectAttempts++;
+      const delay = Math.min(1000 * Math.pow(1.5, reconnectAttempts), maxReconnectDelay);
+      statusText.textContent = `Retrying in ${(delay / 1000).toFixed(0)}s…`;
+      setTimeout(initWebSocket, delay);
+    }
+
+    function sendPayload(obj) {
+      triggerHaptic(12);
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(obj));
+      } else {
+        console.warn("WebSocket not connected. Command buffered/ignored:", obj);
+      }
+    }
+
+    function sendKey(keyValue) {
+      sendPayload({ type: "KEY", value: keyValue });
+    }
+
+    function launchApp(pkgName) {
+      sendPayload({ type: "LAUNCH_APP", package: pkgName });
+    }
+
+    // Handle incoming messages from Fire TV Server
+    function handleServerMessage(data) {
+      if (data.type === "AI_RESPONSE") {
+        displayMobileAiResponse(data.prompt, data.response);
+      } else if (data.type === "CLIENT_COUNT") {
+        console.log("Connected clients:", data.count);
+      }
+    }
+
+    function displayMobileAiResponse(prompt, response) {
+      triggerHaptic([30, 50, 30]);
+      const card = document.getElementById("aiMobileCard");
+      const title = document.getElementById("aiMobilePromptTitle");
+      const body = document.getElementById("aiMobileContent");
+
+      title.textContent = prompt ? `Query: "${prompt}"` : "AWS Bedrock Response";
+      body.textContent = response || "No response received.";
+      card.classList.add("show");
+
+      // Switch to AI tab if not already active so user sees the answer
+      switchTab('ai');
+    }
+
+    function dismissMobileAi() {
+      document.getElementById("aiMobileCard").classList.remove("show");
+    }
+
+    // --- 3. TAB NAVIGATION ---
+    function switchTab(tabId) {
+      triggerHaptic(15);
+      const tabs = ["dpad", "touchpad", "ai"];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab${capitalize(t)}Btn`);
+        const view = document.getElementById(`view${capitalize(t)}`);
+        if (btn && view) {
+          if (t === tabId) {
+            btn.classList.add("active");
+            view.classList.add("active");
+          } else {
+            btn.classList.remove("active");
+            view.classList.remove("active");
+          }
+        }
+      });
+    }
+
+    function capitalize(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    // --- 4. TOUCHPAD GESTURE ENGINE ---
+    const touchSurface = document.getElementById("touchSurface");
+    const touchCursor = document.getElementById("touchCursor");
+    const swipeBadge = document.getElementById("swipeBadge");
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let isTouching = false;
+    const SWIPE_THRESHOLD = 35; // pixels
+    const TAP_TIMEOUT = 250;    // ms
+
+    touchSurface.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = touchSurface.getBoundingClientRect();
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchStartTime = Date.now();
+      isTouching = true;
+
+      // Update cursor
+      updateCursorPosition(touch.clientX - rect.left, touch.clientY - rect.top, true);
+    }, { passive: false });
+
+    touchSurface.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      if (!isTouching) return;
+      const touch = e.touches[0];
+      const rect = touchSurface.getBoundingClientRect();
+      updateCursorPosition(touch.clientX - rect.left, touch.clientY - rect.top, true);
+    }, { passive: false });
+
+    touchSurface.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      if (!isTouching) return;
+      isTouching = false;
+      updateCursorPosition(0, 0, false);
+
+      const touchEndTime = Date.now();
+      const duration = touchEndTime - touchStartTime;
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+
+      if (duration < TAP_TIMEOUT && absX < 15 && absY < 15) {
+        // Single Tap = SELECT
+        triggerHaptic(20);
+        showSwipeFlash("● SELECT");
+        sendKey("SELECT");
+      } else if (absX > SWIPE_THRESHOLD || absY > SWIPE_THRESHOLD) {
+        // Swipe detected
+        if (absX > absY) {
+          if (deltaX > 0) {
+            triggerSwipe("RIGHT", "▶ SWIPE RIGHT");
+          } else {
+            triggerSwipe("LEFT", "◀ SWIPE LEFT");
+          }
+        } else {
+          if (deltaY > 0) {
+            triggerSwipe("DOWN", "▼ SWIPE DOWN");
+          } else {
+            triggerSwipe("UP", "▲ SWIPE UP");
+          }
+        }
+      }
+    }, { passive: false });
+
+    function updateCursorPosition(x, y, active) {
+      if (active) {
+        touchCursor.style.left = `${x}px`;
+        touchCursor.style.top = `${y}px`;
+        touchCursor.classList.add("active");
+      } else {
+        touchCursor.classList.remove("active");
+      }
+    }
+
+    function triggerSwipe(direction, label) {
+      triggerHaptic([10, 30, 10]);
+      showSwipeFlash(label);
+      sendPayload({ type: "SWIPE", direction: direction });
+      // Also send corresponding D-Pad key for seamless TV interaction
+      sendKey(direction);
+    }
+
+    function showSwipeFlash(text) {
+      swipeBadge.textContent = text;
+      swipeBadge.classList.add("show");
+      setTimeout(() => {
+        swipeBadge.classList.remove("show");
+      }, 500);
+    }
+
+    // --- 5. MOBILE VOICE INPUT (WEB SPEECH API) ---
+    const micBtn = document.getElementById("micBtn");
+    const micRadar = document.getElementById("micRadar");
+    const micLabel = document.getElementById("micLabel");
+    const speechPreviewText = document.getElementById("speechPreviewText");
+    const btnSendSpeech = document.getElementById("btnSendSpeech");
+    let recognition = null;
+    let isListening = false;
+    let currentTranscript = "";
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        micLabel.textContent = "Voice not supported in this browser";
+        return null;
+      }
+
+      const rec = new SpeechRecognition();
+      rec.continuous = false;
+      rec.interimResults = true;
+      rec.lang = "en-US";
+
+      rec.onstart = () => {
+        isListening = true;
+        micBtn.classList.add("listening");
+        micRadar.classList.add("animating");
+        micLabel.textContent = "Listening… Speak your question";
+        speechPreviewText.textContent = "…";
+        speechPreviewText.classList.add("active");
+        btnSendSpeech.classList.remove("show");
+        triggerHaptic(30);
+      };
+
+      rec.onresult = (event) => {
+        let interim = "";
+        let final = "";
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            final += event.results[i][0].transcript;
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+
+        currentTranscript = final || interim;
+        speechPreviewText.textContent = `"${currentTranscript}"`;
+
+        if (final) {
+          btnSendSpeech.classList.add("show");
+        }
+      };
+
+      rec.onerror = (e) => {
+        console.warn("Speech recognition error:", e);
+        stopListening();
+        micLabel.textContent = "Tap mic to try again";
+      };
+
+      rec.onend = () => {
+        stopListening();
+        if (currentTranscript && currentTranscript.trim().length > 0) {
+          btnSendSpeech.classList.add("show");
+          micLabel.textContent = "Tap 'Ask Bedrock' or tap mic again";
+        } else {
+          micLabel.textContent = "Tap Mic & Dictate Scene Query";
+        }
+      };
+
+      return rec;
+    }
+
+    function toggleVoiceRecognition() {
+      triggerHaptic(20);
+      if (!recognition) {
+        recognition = initSpeechRecognition();
+      }
+      if (!recognition) {
+        alert("Web Speech API is not supported on this browser. You can type in the box below!");
+        return;
+      }
+
+      if (isListening) {
+        recognition.stop();
+        stopListening();
+      } else {
+        try {
+          recognition.start();
+        } catch (e) {
+          console.warn("Recognition start issue:", e);
+        }
+      }
+    }
+
+    function stopListening() {
+      isListening = false;
+      micBtn.classList.remove("listening");
+      micRadar.classList.remove("animating");
+    }
+
+    function sendTranscribedPrompt() {
+      if (!currentTranscript || !currentTranscript.trim()) return;
+      sendAiPrompt(currentTranscript.trim());
+      btnSendSpeech.classList.remove("show");
+      speechPreviewText.textContent = `Sent: "${currentTranscript.trim()}"`;
+      currentTranscript = "";
+    }
+
+    // --- 6. AI PRESET PROMPTS & MANUAL INPUT ---
+    function sendAiPreset(promptText) {
+      triggerHaptic(25);
+      sendAiPrompt(promptText);
+    }
+
+    function sendManualPrompt() {
+      const input = document.getElementById("manualInput");
+      const val = input.value.trim();
+      if (!val) return;
+      triggerHaptic(25);
+      sendAiPrompt(val);
+      input.value = "";
+    }
+
+    function sendAiPrompt(promptText) {
+      sendPayload({ type: "AI_PROMPT", value: promptText });
+      
+      // Update local preview
+      const card = document.getElementById("aiMobileCard");
+      const title = document.getElementById("aiMobilePromptTitle");
+      const body = document.getElementById("aiMobileContent");
+      title.textContent = `Query: "${promptText}"`;
+      body.innerHTML = `<em>Consulting AWS Bedrock (amazon.nova-lite-v1:0 / claude-3-5-sonnet)…</em>`;
+      card.classList.add("show");
+    }
+
+    // Start WebSocket when page is ready
+    window.addEventListener("DOMContentLoaded", () => {
+      initWebSocket();
+    });
+  </script>
+</body>
+</html>

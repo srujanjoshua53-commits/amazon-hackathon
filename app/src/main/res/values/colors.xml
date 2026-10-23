@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Midnight Slate Background Palette -->
+    <color name="bg_midnight_dark">#020617</color>
+    <color name="bg_midnight_slate">#0F172A</color>
+    <color name="bg_surface_dark">#0B1120</color>
+
+    <!-- Glassmorphic Card Surfaces (70% and 85% opacity) -->
+    <color name="glass_card_bg">#B31E293B</color>
+    <color name="glass_card_bg_elevated">#D91E293B</color>
+    <color name="glass_card_border">#334155</color>
+    <color name="glass_card_border_glow">#475569</color>
+
+    <!-- Glowing Neon Accents -->
+    <color name="neon_cyan">#38BDF8</color>
+    <color name="neon_cyan_glow">#3338BDF8</color>
+    <color name="neon_indigo">#818CF8</color>
+    <color name="neon_indigo_glow">#33818CF8</color>
+    <color name="neon_emerald">#10B981</color>
+    <color name="neon_emerald_glow">#3310B981</color>
+    <color name="neon_amber">#F59E0B</color>
+    <color name="neon_rose">#F43F5E</color>
+
+    <!-- Typography -->
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="text_muted">#64748B</color>
+    <color name="text_cyan">#38BDF8</color>
+
+    <!-- System / Overlay -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="qr_foreground">#F8FAFC</color>
+    <color name="qr_background">#0F172A</color>
+</resources>

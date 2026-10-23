@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">FireBridge AI Ultra</string>
+    <string name="app_tagline">Next-Gen Multi-Modal Fire TV Remote &amp; Viewing Assistant</string>
+    <string name="scan_to_connect">Scan to Connect</string>
+    <string name="scan_instructions">Open your smartphone camera to connect instantly. No app installation needed.</string>
+    <string name="status_server_online">SERVER ONLINE</string>
+    <string name="status_port_label">PORT: 8080</string>
+    <string name="connected_devices_label">Connected Devices</string>
+    <string name="zero_devices">0 Connected</string>
+    <string name="one_device">1 Device Connected</string>
+    <string name="multiple_devices">%d Devices Connected</string>
+    <string name="ai_hud_title">AWS Bedrock Viewing Assistant</string>
+    <string name="ai_hud_model">Model: Amazon Nova Lite / Claude 3.5 Sonnet</string>
+    <string name="ai_thinking">Analyzing scene with AWS Bedrock…</string>
+    <string name="waiting_for_pairing">Waiting for mobile pairing…</string>
+    <string name="last_activity_title">Live Telemetry</string>
+    <string name="last_activity_idle">Ready for commands</string>
+    <string name="step_1_title">1. Connect to Wi-Fi</string>
+    <string name="step_1_desc">Ensure your phone is on the same local network</string>
+    <string name="step_2_title">2. Scan QR Code</string>
+    <string name="step_2_desc">Point camera at QR code or type local IP</string>
+    <string name="step_3_title">3. Instant Control</string>
+    <string name="step_3_desc">Voice AI, Touchpad gesture nav &amp; tactile D-pad</string>
+</resources>

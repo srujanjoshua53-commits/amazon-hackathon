@@ -1,0 +1,18 @@
+<resources>
+    <!-- Base application theme for Fire TV -->
+    <style name="Theme.FireBridgeAIUltra" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/neon_cyan</item>
+        <item name="colorPrimaryVariant">@color/neon_indigo</item>
+        <item name="colorOnPrimary">@color/bg_midnight_dark</item>
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/neon_indigo</item>
+        <item name="colorSecondaryVariant">@color/neon_cyan</item>
+        <item name="colorOnSecondary">@color/text_primary</item>
+        <!-- Status bar and navigation bar color -->
+        <item name="android:statusBarColor">@color/bg_midnight_dark</item>
+        <item name="android:navigationBarColor">@color/bg_midnight_dark</item>
+        <item name="android:windowBackground">@drawable/bg_tv_gradient</item>
+        <item name="android:colorBackground">@color/bg_midnight_dark</item>
+    </style>
+</resources>
